@@ -3,11 +3,17 @@ A tool for concatenating multiple fasta alignments for supermatrix phylogenetic 
 
 # To install:
 
-Download the file "catsequences.c" and type:
+Download the file "catsequences.c" and or if you have git installed use the command:
+```
+git clone https://github.com/ChrisCreevey/catsequences.git
+```
+To build catsequences type:
 
 ```
 cc catsequences.c -o catsequences -lm
 ```
+Copy the executable "catsequences" to somewhere on your path like "~/bin" to have access to it from anywhere.
+
 
 # To use:
 
@@ -19,13 +25,13 @@ catsequences filename
 
   where filename contains a list of files with sequences to be concatenated
 
-  The concatenated alignments are outputted to a file called "allseqs.fas"
+  >The concatenated alignments are outputted to a file called "allseqs.fas"
   
-  Partition information will be written to the file "allseqs.partitions.txt"
+  >Partition information will be written to the file "allseqs.partitions.txt"
 
-  The sequence names are read up to the first "." or "|" (or the end of the name)
+  >The sequence names are read up to the first "." or "|" (or the end of the name)
 
-  The easiest way to create the list input file is to use a command like:
+The easiest way to create the list input file is to use a command like:
 
 ```
 ls *.fasta > list
