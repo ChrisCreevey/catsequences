@@ -20,6 +20,8 @@ catsequences filename
   where filename contains a list of files with sequences to be concatenated
 
   The concatenated alignments are outputted to a file called "allseqs.fas"
+  
+  Partition information will be written to the file "allseqs.partitions.txt"
 
   The sequence names are read up to the first "." or "|" (or the end of the name)
 
