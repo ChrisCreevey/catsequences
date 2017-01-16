@@ -21,19 +21,25 @@ int *seqlens = NULL, numspecies = 0, numseqs = 0, num_files=0;
 
 int main(int argc, char *argv[])
     {
-    FILE *infile1 = NULL, *infile2 = NULL, *outfile = NULL;
+    FILE *infile1 = NULL, *infile2 = NULL, *outfile = NULL, *outfile2 = NULL;
     char *filename = NULL, string[1000000], string2[1000000], c = '\0';
-    int i = 0, j = 0, k=0, found = 0, stopreading = FALSE, aln_len =0, error = FALSE, filenum=0, seqpos=0, previous=FALSE, totlen=0;
+    int i = 0, j = 0, k=0, found = 0, stopreading = FALSE, aln_len =0, error = FALSE, filenum=0, seqpos=0, previous=FALSE, totlen=0, files_read=0;
     
     if(argc < 2)
         {
-        printf("\n\ncatsequences is designed to concatenate sequence alignments. \nUsage: catsequences filename\nwhere filename contains a list of files with sequences to be concatenated\nThe concatenated alignments are outputted to a file called \"allseqs.fas\"\nThe sequence names are read up to the first \".\" or \"|\" (or the end of the name)\n\n");
+        printf("\ncatsequences is designed to concatenate sequence alignments. \n\nUsage: catsequences filename\n\tWhere filename contains a list of files with sequences to be concatenated\n\tThe concatenated alignments are outputted to a file called \"allseqs.fas\"\n\tPartition information will be written to the file \"allseqs.partitions.txt\"\n\n\n\tThe sequence names are read up to the first \".\" or \"|\" (or the end of the name)\n\n");
         exit(1);
         }
     
 		
 	/* open file with list of files to be concatenated */    
-    infile1 = fopen(argv[1], "r");
+	if((infile1 = fopen(argv[1], "r")) == '\0')   /* check to see if the file is there */
+	    {                          /* Open the fundamental tree file */
+	    fprintf(stderr, "Error: Cannot open list file %s\n", argv[1]);
+	    exit(1);
+	    }
+    
+    outfile2 = fopen("allseqs.partitions.txt", "w");
     filename=malloc(1000*sizeof(char));
     filename[0]='\0';
     string[0] ='\0';
@@ -71,9 +77,18 @@ int main(int argc, char *argv[])
 	while(!feof(infile1) && !error)
 		{
         fscanf(infile1, "%s\n", filename); /* Get the name of the sequene file tobe opened */
-        infile2 = fopen(filename, "r"); /* open the sequence file */
+		if((infile2 = fopen(filename, "r")) == '\0')   /* check to see if the file is there */
+		    {                          /* Open the fundamental tree file */
+		    fprintf(stderr, "Error: Cannot open alignment file %s\n", filename);
+		    clear_memory();
+		    exit(1);
+		    }
+	   
+        /*infile2 = fopen(filename, "r"); */ /* open the sequence file */
         /*printf("%s\n", filename);*/
 		
+		fprintf(outfile2, "%s\t=\t%d-", filename, totlen-j+1);
+
 		aln_len = -1;
 		/* read in the names and see how many species we need for this gene */
 		c = getc(infile2);
@@ -160,14 +175,16 @@ int main(int argc, char *argv[])
 					}
 				}
 			}
+		fprintf(outfile2, "%d;\n", totlen-j-1);
         fclose(infile2);
 		j++;
 		}
 	fclose(infile1);
-
+	fclose(outfile2);
 
 	printf("num_species = %d, num_files = %d\n", numspecies, num_files);
 	printf("expected concatenated sequence length %d\n", totlen-num_files);
+	printf("\nAll partitions written to \"allseqs.partitions.txt\"\n");
 
 
 	/*read in the sequences for real */
@@ -193,7 +210,7 @@ int main(int argc, char *argv[])
 	/**** READ IN THE SEQUENCES  ***/
 
 
-	printf("\n\n\n");
+	printf("\n");
     infile1 = fopen(argv[1], "r");	/* open up the list of files again */
 	filenum=0;
 	while(!feof(infile1) && !error)
@@ -284,7 +301,8 @@ int main(int argc, char *argv[])
 		printf("File %d seqlen = %d. fulllen = %d\n", i, strlen(sequences[i][0]), seqlens[i]);
 		}
 */
-    infile1 = fopen("allseqs.fas", "w");    
+    infile1 = fopen("allseqs.fas", "w");
+    
     found = 0;
     for(i=0; i<numspecies; i++)
         {
@@ -313,7 +331,7 @@ int main(int argc, char *argv[])
         }
     fclose(infile1);
     free(filename);
-	printf("Finished!\n");
+	printf("Finished! Cancatenated alignment written to \"allseqs.fas\"\n\n");
     }
     
 void clean_exit(int x)
