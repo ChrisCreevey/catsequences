@@ -16,3 +16,11 @@ catsequences
 catsequences4ests.c
 
 catsequences4ests
+
+*.txt~
+
+COG0012.fa
+
+COG0016.fa
+
+COG0018.fa

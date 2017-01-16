@@ -1,1 +1,6 @@
->species aefghijklmno>species ce----jklmno>species defghiiiiiii
+>species1.a
+efghijklmno
+>species3.c
+e----jklmno
+>species4.d
+efghiiiiiii

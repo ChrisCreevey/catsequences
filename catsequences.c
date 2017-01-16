@@ -16,36 +16,38 @@
 void clean_exit(int x);
 void clear_memory(void);
 
-char **species_names = '\0', ***sequences = '\0';
-int *seqlens = '\0', numspecies = 0, numseqs = 0, num_files=0; 
+char **species_names = NULL, ***sequences = NULL;
+int *seqlens = NULL, numspecies = 0, numseqs = 0, num_files=0; 
 
 int main(int argc, char *argv[])
     {
-    FILE *infile1 = '\0', *infile2 = '\0', *outfile = '\0';
-    char filename[100], string[1000000], string2[1000000], c = '\0';
+    FILE *infile1 = NULL, *infile2 = NULL, *outfile = NULL;
+    char *filename = NULL, string[1000000], string2[1000000], c = '\0';
     int i = 0, j = 0, k=0, found = 0, stopreading = FALSE, aln_len =0, error = FALSE, filenum=0, seqpos=0, previous=FALSE, totlen=0;
     
     if(argc < 2)
         {
-        printf("\n\ncatsequences is designed to concatenate sequence alignments. \nUsage: catsequences filename\nwhere filename contains a list of files with sequences to be concatenated\nThe concatenated alignments are outputted to a file called \"allseqs.fas\"\n\n");
+        printf("\n\ncatsequences is designed to concatenate sequence alignments. \nUsage: catsequences filename\nwhere filename contains a list of files with sequences to be concatenated\nThe concatenated alignments are outputted to a file called \"allseqs.fas\"\nThe sequence names are read up to the first \".\" or \"|\" (or the end of the name)\n\n");
         exit(1);
         }
     
 		
 	/* open file with list of files to be concatenated */    
     infile1 = fopen(argv[1], "r");
-    
+    filename=malloc(1000*sizeof(char));
+    filename[0]='\0';
     string[0] ='\0';
     string2[0] = '\0';
     
+
     /* assign the arry to hold the names of the species (max 10000 in this build) */
 	species_names = malloc(10000*sizeof(char*));
-    if(species_names == '\0') clean_exit(1);
+    if(species_names == NULL) clean_exit(1);
 	
 	for(i=0; i<10000; i++)
 		{
 		species_names[i] = malloc(50*sizeof(char));
-		if(species_names[i] == '\0') clean_exit(23);
+		if(species_names[i] == NULL) clean_exit(23);
 		species_names[i][0] = '\0';
 		}
 
@@ -63,12 +65,12 @@ int main(int argc, char *argv[])
 
     /* assign the array to hold the length of the aligned sequences in each file */
 	seqlens = malloc(num_files*sizeof(int));
-	if(seqlens == '\0') clean_exit(6);
+	if(seqlens == NULL) clean_exit(6);
 	j=0;
 	
 	while(!feof(infile1) && !error)
 		{
-        fscanf(infile1, "%s\n", &filename); /* Get the name of the sequene file tobe opened */
+        fscanf(infile1, "%s\n", filename); /* Get the name of the sequene file tobe opened */
         infile2 = fopen(filename, "r"); /* open the sequence file */
         /*printf("%s\n", filename);*/
 		
@@ -84,7 +86,7 @@ int main(int argc, char *argv[])
 				i++;
 				 while(!feof(infile2) && (c=getc(infile2)) != '\n' && c != '\r' && c != '.')
 					{
-					if(c != '\r' && c != '\n' && c != '.' && !feof(infile2))
+					if(c != '\r' && c != '\n' && !feof(infile2))
 						{
 						string[i] = c;
 						i++;
@@ -103,8 +105,9 @@ int main(int argc, char *argv[])
 					{
 					for(i=0; i<100; i++)   /* Reduce the length of the names to 100 characters */
 						{
-						if(string[i] == '.')
+						if(string[i] == '.' || string[i] == '|')
 							{
+							string[i]='\0';
 							i = 100;
 							}
 						else
@@ -171,16 +174,16 @@ int main(int argc, char *argv[])
 
 	/* Assign the array to hold all the sequences */
 	sequences = malloc(num_files*sizeof(char**));
-    if(sequences == '\0') clean_exit(2);
+    if(sequences == NULL) clean_exit(2);
 
 	for(j=0; j<num_files; j++)
 		{
 		sequences[j] = malloc(numspecies*sizeof(char*));
-		if(sequences[j] == '\0') clean_exit(3);
+		if(sequences[j] == NULL) clean_exit(3);
 		for(k=0; k<numspecies; k++) 
 			{
 			sequences[j][k] = malloc((seqlens[j]+1)*sizeof(char));
-			if(sequences[j][k] == '\0') clean_exit(4);
+			if(sequences[j][k] == NULL) clean_exit(4);
 			sequences[j][k][0] = '\0';
 			}
 		}
@@ -195,7 +198,7 @@ int main(int argc, char *argv[])
 	filenum=0;
 	while(!feof(infile1) && !error)
         {		
-		fscanf(infile1, "%s\n", &filename); /* read in the name of the file */
+		fscanf(infile1, "%s\n", filename); /* read in the name of the file */
       /*  printf("File opened: %s\n", filename);*/
         infile2 = fopen(filename, "r"); /* open the file */
 		previous=FALSE;
@@ -221,7 +224,7 @@ int main(int argc, char *argv[])
 				{
 				for(i=0; i<100; i++)   /* Reduce the length of the names to 100 characters */
 					{
-					if(string[i] == '.')
+					if(string[i] == '.' || string[i] == '|')
 						{
 						string2[i] = '\0';
 						i = 100;
@@ -262,7 +265,7 @@ int main(int argc, char *argv[])
 				if(!previous)
 					{
 					strcat(sequences[filenum][found], string);
-					if(strlen(sequences[filenum][found]) > seqlens[filenum]) printf("%d/%d\n", strlen(sequences[filenum][found]), seqlens[filenum]);
+					if(strlen(sequences[filenum][found]) > seqlens[filenum]) printf("%lu/%d\n", strlen(sequences[filenum][found]), seqlens[filenum]);
 					}
 				}
 
@@ -291,7 +294,7 @@ int main(int argc, char *argv[])
             if(strlen(sequences[j][i]) != 0)
                 {
                 fprintf(infile1, "%s", sequences[j][i]);
-				if(strlen(sequences[j][i])+1 != seqlens[j]) printf("File %d seqlen = %d. fulllen = %d\n", i, strlen(sequences[j][i]), seqlens[j]);
+				if(strlen(sequences[j][i])+1 != seqlens[j]) printf("File %d seqlen = %lu. fulllen = %d\n", i, strlen(sequences[j][i]), seqlens[j]);
 /*				printf("%d/%d\t", strlen(sequences[j][i]), seqlens[j]);*/
                 }
             else
@@ -309,6 +312,7 @@ int main(int argc, char *argv[])
 	/*	printf("\n"); */
         }
     fclose(infile1);
+    free(filename);
 	printf("Finished!\n");
     }
     
@@ -322,45 +326,46 @@ void clean_exit(int x)
 void clear_memory(void)
 	{
 	int i, j;
-	if(species_names != '\0')
+
+	if(species_names != NULL)
 		{
 		for(i=0; i<numspecies; i++)
 			{
-			if(species_names[i] != '\0')
+			if(species_names[i] != NULL)
 				{
 				free(species_names[i]);
-				species_names[i] = '\0';
+				species_names[i] = NULL;
 				}
 			}
 		free(species_names);
-		species_names = '\0';
+		species_names = NULL;
 		}
 		
-	if(sequences != '\0')
+	if(sequences != NULL)
 		{
 		for(i=0; i<num_files; i++)
 			{
-			if(sequences[i] != '\0')
+			if(sequences[i] != NULL)
 				{
 				for(j=0; j<numspecies; j++)
 					{
-					if(sequences[i][j] != '\0')
+					if(sequences[i][j] != NULL)
 						{
 						free(sequences[i][j]);
-						sequences[i][j] = '\0';
+						sequences[i][j] = NULL;
 						}
 					}
 				free(sequences[i]);
-				sequences[i] = '\0';
+				sequences[i] = NULL;
 				}
 			}
 		free(sequences);
-		sequences = '\0';
+		sequences = NULL;
 		}
 	
-	if(seqlens != '\0')
+	if(seqlens != NULL)
 		{
 		free(seqlens);
-		seqlens = '\0';
+		seqlens = NULL;
 		}
 	}
