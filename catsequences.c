@@ -27,7 +27,7 @@ int main(int argc, char *argv[])
     
     if(argc < 2)
         {
-        printf("\n\ncatsequences is designed to concatenate sequence alignments. \nUsage: catsequences filename\nwhere filename contains a list of files with sequences to be concatenated\n\n\n");
+        printf("\n\ncatsequences is designed to concatenate sequence alignments. \nUsage: catsequences filename\nwhere filename contains a list of files with sequences to be concatenated\nThe concatenated alignments are outputted to a file called \"allseqs.fas\"\n\n");
         exit(1);
         }
     
@@ -38,7 +38,7 @@ int main(int argc, char *argv[])
     string[0] ='\0';
     string2[0] = '\0';
     
-    /* assign the arry to hold the names of the species (max 1000 in this build) */
+    /* assign the arry to hold the names of the species (max 10000 in this build) */
 	species_names = malloc(10000*sizeof(char*));
     if(species_names == '\0') clean_exit(1);
 	
