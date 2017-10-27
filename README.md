@@ -3,6 +3,7 @@
 ### A tool for concatenating multiple fasta alignments for supermatrix phylogenetic analyses
 
 
+
 Usage: `catsequences filename`
 
 Where filename contains a list of files with sequences to be concatenated
