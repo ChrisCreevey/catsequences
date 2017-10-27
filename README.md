@@ -1,5 +1,18 @@
 # catsequences
-A tool for concatenating multiple fasta alignments for supermatrix phylogenetic analyses
+
+### A tool for concatenating multiple fasta alignments for supermatrix phylogenetic analyses
+
+
+Usage: `catsequences filename`
+
+Where filename contains a list of files with sequences to be concatenated
+The concatenated alignments are outputted to a file called "allseqs.fas"
+Partition information will be written to the file "allseqs.partitions.txt"
+
+The sequence names are read up to the first "." or "|" (or the end of the name)
+
+
+----------------------------------
 
 # To install:
 
@@ -14,6 +27,7 @@ cc catsequences.c -o catsequences -lm
 ```
 Copy the executable "catsequences" to somewhere on your path like "~/bin" to have access to it from anywhere.
 
+--------------------------------
 
 # To use:
 
