@@ -14,7 +14,6 @@
 
 
 void clean_exit(int x);
-void clear_memory(void);
 
 char **species_names = NULL, ***sequences = NULL;
 int *seqlens = NULL, numspecies = 0, numseqs = 0, num_files=0; 
@@ -80,7 +79,6 @@ int main(int argc, char *argv[])
 		if((infile2 = fopen(filename, "r")) == '\0')   /* check to see if the file is there */
 		    {                          /* Open the fundamental tree file */
 		    fprintf(stderr, "Error: Cannot open alignment file %s\n", filename);
-		    clear_memory();
 		    exit(1);
 		    }
 	   
@@ -274,7 +272,7 @@ int main(int argc, char *argv[])
 				if(found == -1)
 					{
 					printf("error: %s not found\n", string);
-					clean_exit(1);
+					exit(EXIT_FAILURE);
 					}
 				}
 			else
@@ -337,53 +335,5 @@ int main(int argc, char *argv[])
 void clean_exit(int x)
     {
     printf("Error: out of memory at %d\n", x);
-	clear_memory();
-    exit(0);
+    exit(EXIT_FAILURE);
     }
-	
-void clear_memory(void)
-	{
-	int i, j;
-
-	if(species_names != NULL)
-		{
-		for(i=0; i<numspecies; i++)
-			{
-			if(species_names[i] != NULL)
-				{
-				free(species_names[i]);
-				species_names[i] = NULL;
-				}
-			}
-		free(species_names);
-		species_names = NULL;
-		}
-		
-	if(sequences != NULL)
-		{
-		for(i=0; i<num_files; i++)
-			{
-			if(sequences[i] != NULL)
-				{
-				for(j=0; j<numspecies; j++)
-					{
-					if(sequences[i][j] != NULL)
-						{
-						free(sequences[i][j]);
-						sequences[i][j] = NULL;
-						}
-					}
-				free(sequences[i]);
-				sequences[i] = NULL;
-				}
-			}
-		free(sequences);
-		sequences = NULL;
-		}
-	
-	if(seqlens != NULL)
-		{
-		free(seqlens);
-		seqlens = NULL;
-		}
-	}
