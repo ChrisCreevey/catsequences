@@ -20,9 +20,9 @@ int *seqlens = NULL, numspecies = 0, numseqs = 0, num_files=0;
 
 int main(int argc, char *argv[])
     {
-    FILE *infile1 = NULL, *infile2 = NULL, *outfile = NULL, *outfile2 = NULL;
+    FILE *infile1 = NULL, *infile2 = NULL, *outfile2 = NULL;
     char *filename = NULL, string[1000000], string2[1000000], c = '\0';
-    int i = 0, j = 0, k=0, found = 0, stopreading = FALSE, aln_len =0, error = FALSE, filenum=0, seqpos=0, previous=FALSE, totlen=0, files_read=0;
+    int i = 0, j = 0, k=0, found = 0, aln_len =0, error = FALSE, filenum=0, previous=FALSE, totlen=0;
     
     if(argc < 2)
         {
