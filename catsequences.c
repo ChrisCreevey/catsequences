@@ -108,24 +108,7 @@ int main(int argc, char *argv[])
 				
 				if(string[0] == '>')
 					{
-					for(i=0; i<100; i++)   /* Reduce the length of the names to 100 characters */
-						{
-						if(string[i] == '.' || string[i] == '|')
-							{
-							string[i]='\0';
-							i = 100;
-							}
-						else
-							{
-							if(string[i] != ' ')
-								string2[i] = string[i];
-							else
-								break;
-							}
-						}
-					string2[i] = '\0';
-					strcpy(string, string2);
-					
+					string[strcspn(string, " |.")] = '\0'; /* species name is initial string up to [ |.] */
 					found = -1;
 					for(i=0; i<numspecies; i++)
 						{
@@ -233,24 +216,7 @@ int main(int argc, char *argv[])
 			
 			if(string[0] == '>')
 				{
-				for(i=0; i<100; i++)   /* Reduce the length of the names to 100 characters */
-					{
-					if(string[i] == '.' || string[i] == '|')
-						{
-						string2[i] = '\0';
-						i = 100;
-						}
-					else
-						{
-						if(string[i] != ' ')
-							string2[i] = string[i];
-						else
-							break;
-						}
-					}
-				string2[i] = '\0';
-				strcpy(string, string2);
-				
+				string[strcspn(string, " |.")] = '\0'; /* species name is initial string up to [ |.] */
 				found = -1;
 				for(i=0; i<numspecies; i++)
 					{

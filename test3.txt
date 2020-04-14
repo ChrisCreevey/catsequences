@@ -1,6 +1,6 @@
 >species2.b
 pqrstuvwxyz
->species4 d
+>species4.d
 pqrtttttttt
 >species5.e
 dfgknwognso
