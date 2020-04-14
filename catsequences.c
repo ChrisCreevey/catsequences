@@ -204,8 +204,7 @@ int main(int argc, char *argv[])
 				{
 				if(c != '\r' && c != '\n' && !feof(infile2))
 					{
-					string[i] = c;
-					if(string[i] != ' ') i++;
+					string[i++] = c;
 					}
 				if(i == 1000000) printf("off the end!\n");
 				}
