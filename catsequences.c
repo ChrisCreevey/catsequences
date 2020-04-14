@@ -49,14 +49,6 @@ int main(int argc, char *argv[])
 	species_names = malloc(10000*sizeof(char*));
     if(species_names == NULL) clean_exit(1);
 	
-	for(i=0; i<10000; i++)
-		{
-		species_names[i] = malloc(50*sizeof(char));
-		if(species_names[i] == NULL) clean_exit(23);
-		species_names[i][0] = '\0';
-		}
-
-	
 	/* Count the number of file to be read in */
 	i=0;
     while(!feof(infile1))
@@ -143,7 +135,11 @@ int main(int argc, char *argv[])
 					if(found == -1)
 						{
 				/*		printf("found species %d: %s\n", numspecies, string); */
-						strcpy(species_names[numspecies], string);
+						if (!(species_names[numspecies] = strdup(string)))
+							{
+								perror("strdup");
+								exit(EXIT_FAILURE);
+							}
 						found = numspecies;
 						numspecies++;
 						}
