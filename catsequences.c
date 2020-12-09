@@ -14,16 +14,15 @@
 
 
 void clean_exit(int x);
-void clear_memory(void);
 
 char **species_names = NULL, ***sequences = NULL;
 int *seqlens = NULL, numspecies = 0, numseqs = 0, num_files=0; 
 
 int main(int argc, char *argv[])
     {
-    FILE *infile1 = NULL, *infile2 = NULL, *outfile = NULL, *outfile2 = NULL;
+    FILE *infile1 = NULL, *infile2 = NULL, *outfile2 = NULL;
     char *filename = NULL, string[1000000], string2[1000000], c = '\0';
-    int i = 0, j = 0, k=0, found = 0, stopreading = FALSE, aln_len =0, error = FALSE, filenum=0, seqpos=0, previous=FALSE, totlen=0, files_read=0;
+    int i = 0, j = 0, k=0, found = 0, aln_len =0, error = FALSE, filenum=0, previous=FALSE, totlen=0;
     
     if(argc < 2)
         {
@@ -50,14 +49,6 @@ int main(int argc, char *argv[])
 	species_names = malloc(10000*sizeof(char*));
     if(species_names == NULL) clean_exit(1);
 	
-	for(i=0; i<10000; i++)
-		{
-		species_names[i] = malloc(50*sizeof(char));
-		if(species_names[i] == NULL) clean_exit(23);
-		species_names[i][0] = '\0';
-		}
-
-	
 	/* Count the number of file to be read in */
 	i=0;
     while(!feof(infile1))
@@ -80,7 +71,6 @@ int main(int argc, char *argv[])
 		if((infile2 = fopen(filename, "r")) == '\0')   /* check to see if the file is there */
 		    {                          /* Open the fundamental tree file */
 		    fprintf(stderr, "Error: Cannot open alignment file %s\n", filename);
-		    clear_memory();
 		    exit(1);
 		    }
 	   
@@ -118,24 +108,7 @@ int main(int argc, char *argv[])
 				
 				if(string[0] == '>')
 					{
-					for(i=0; i<100; i++)   /* Reduce the length of the names to 100 characters */
-						{
-						if(string[i] == '.' || string[i] == '|')
-							{
-							string[i]='\0';
-							i = 100;
-							}
-						else
-							{
-							if(string[i] != ' ')
-								string2[i] = string[i];
-							else
-								break;
-							}
-						}
-					string2[i] = '\0';
-					strcpy(string, string2);
-					
+					string[strcspn(string, " |.")] = '\0'; /* species name is initial string up to [ |.] */
 					found = -1;
 					for(i=0; i<numspecies; i++)
 						{
@@ -145,7 +118,11 @@ int main(int argc, char *argv[])
 					if(found == -1)
 						{
 				/*		printf("found species %d: %s\n", numspecies, string); */
-						strcpy(species_names[numspecies], string);
+						if (!(species_names[numspecies] = strdup(string)))
+							{
+								perror("strdup");
+								exit(EXIT_FAILURE);
+							}
 						found = numspecies;
 						numspecies++;
 						}
@@ -227,8 +204,7 @@ int main(int argc, char *argv[])
 				{
 				if(c != '\r' && c != '\n' && !feof(infile2))
 					{
-					string[i] = c;
-					if(string[i] != ' ') i++;
+					string[i++] = c;
 					}
 				if(i == 1000000) printf("off the end!\n");
 				}
@@ -239,24 +215,7 @@ int main(int argc, char *argv[])
 			
 			if(string[0] == '>')
 				{
-				for(i=0; i<100; i++)   /* Reduce the length of the names to 100 characters */
-					{
-					if(string[i] == '.' || string[i] == '|')
-						{
-						string2[i] = '\0';
-						i = 100;
-						}
-					else
-						{
-						if(string[i] != ' ')
-							string2[i] = string[i];
-						else
-							break;
-						}
-					}
-				string2[i] = '\0';
-				strcpy(string, string2);
-				
+				string[strcspn(string, " |.")] = '\0'; /* species name is initial string up to [ |.] */
 				found = -1;
 				for(i=0; i<numspecies; i++)
 					{
@@ -274,7 +233,7 @@ int main(int argc, char *argv[])
 				if(found == -1)
 					{
 					printf("error: %s not found\n", string);
-					clean_exit(1);
+					exit(EXIT_FAILURE);
 					}
 				}
 			else
@@ -337,53 +296,5 @@ int main(int argc, char *argv[])
 void clean_exit(int x)
     {
     printf("Error: out of memory at %d\n", x);
-	clear_memory();
-    exit(0);
+    exit(EXIT_FAILURE);
     }
-	
-void clear_memory(void)
-	{
-	int i, j;
-
-	if(species_names != NULL)
-		{
-		for(i=0; i<numspecies; i++)
-			{
-			if(species_names[i] != NULL)
-				{
-				free(species_names[i]);
-				species_names[i] = NULL;
-				}
-			}
-		free(species_names);
-		species_names = NULL;
-		}
-		
-	if(sequences != NULL)
-		{
-		for(i=0; i<num_files; i++)
-			{
-			if(sequences[i] != NULL)
-				{
-				for(j=0; j<numspecies; j++)
-					{
-					if(sequences[i][j] != NULL)
-						{
-						free(sequences[i][j]);
-						sequences[i][j] = NULL;
-						}
-					}
-				free(sequences[i]);
-				sequences[i] = NULL;
-				}
-			}
-		free(sequences);
-		sequences = NULL;
-		}
-	
-	if(seqlens != NULL)
-		{
-		free(seqlens);
-		seqlens = NULL;
-		}
-	}

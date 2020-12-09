@@ -2,5 +2,5 @@
 efghijklmno
 >species3.c
 e----jklmno
->species4.d
+>species4 d
 efghiiiiiii
