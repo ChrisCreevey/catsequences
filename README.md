@@ -2,6 +2,7 @@
 
 ### A tool for concatenating multiple fasta alignments for supermatrix phylogenetic analyses
 
+Please reference this DOI: [![DOI](https://zenodo.org/badge/79135872.svg)](https://zenodo.org/badge/latestdoi/79135872)
 
 
 Usage: `catsequences filename`
