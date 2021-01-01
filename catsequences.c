@@ -32,7 +32,7 @@ int main(int argc, char *argv[])
     
 		
 	/* open file with list of files to be concatenated */    
-	if((infile1 = fopen(argv[1], "r")) == '\0')   /* check to see if the file is there */
+	if((infile1 = fopen(argv[1], "r")) == NULL)   /* check to see if the file is there */
 	    {                          /* Open the fundamental tree file */
 	    fprintf(stderr, "Error: Cannot open list file %s\n", argv[1]);
 	    exit(1);
@@ -68,7 +68,7 @@ int main(int argc, char *argv[])
 	while(!feof(infile1) && !error)
 		{
         fscanf(infile1, "%s\n", filename); /* Get the name of the sequene file tobe opened */
-		if((infile2 = fopen(filename, "r")) == '\0')   /* check to see if the file is there */
+		if((infile2 = fopen(filename, "r")) == NULL)   /* check to see if the file is there */
 		    {                          /* Open the fundamental tree file */
 		    fprintf(stderr, "Error: Cannot open alignment file %s\n", filename);
 		    exit(1);
