@@ -12,6 +12,9 @@
 #define TEMP 2
 #endif
 
+#define MAXLEN 1000000
+#define NAMEDELIMITER " |." /* species name is initial string up to first  ' ', '|' or '.' */
+
 
 void clean_exit(int x);
 
@@ -21,7 +24,7 @@ int *seqlens = NULL, numspecies = 0, numseqs = 0, num_files=0;
 int main(int argc, char *argv[])
     {
     FILE *infile1 = NULL, *infile2 = NULL, *outfile2 = NULL;
-    char *filename = NULL, string[1000000], string2[1000000], c = '\0';
+    char *filename = NULL, string[MAXLEN], string2[MAXLEN], c = '\0';
     int i = 0, j = 0, k=0, found = 0, aln_len =0, error = FALSE, filenum=0, previous=FALSE, totlen=0;
     
     if(argc < 2)
@@ -96,7 +99,12 @@ int main(int argc, char *argv[])
 						string[i] = c;
 						i++;
 						}
-					if(i == 1000000) printf("off the end!\n");
+					if(i == MAXLEN) 
+							{
+								printf("ERROR: The total concatenated sequence length is greater than the maximum length defined (%d)!\n", MAXLEN);
+								printf("\tTo fix this increase the value of MAXLEN on line 15 of 'catsequences.c` and recompile the tool\n");
+								exit(1);
+							}
 					}
 				if(c == '.')
 					{
@@ -108,7 +116,7 @@ int main(int argc, char *argv[])
 				
 				if(string[0] == '>')
 					{
-					string[strcspn(string, " |.")] = '\0'; /* species name is initial string up to [ |.] */
+					string[strcspn(string, NAMEDELIMITER)] = '\0'; /* Truncate the name at the first instnace of any of the NAME delimiters (to capture the species name and exclude gene names for instnace) */
 					found = -1;
 					for(i=0; i<numspecies; i++)
 						{
@@ -206,7 +214,12 @@ int main(int argc, char *argv[])
 					{
 					string[i++] = c;
 					}
-				if(i == 1000000) printf("off the end!\n");
+			if(i == MAXLEN) 
+					{
+						printf("ERROR: The total concatenated sequence length is greater than the maximum length defined (%d)!\n", MAXLEN);
+						printf("\tTo fix this increase the value of MAXLEN on line 15 of 'catsequences.c` and recompile the tool\n");
+						exit(1);
+					}
 				}
 			
 			string[i] = '\0';
