@@ -228,7 +228,7 @@ int main(int argc, char *argv[])
 			
 			if(string[0] == '>')
 				{
-				string[strcspn(string, " |.")] = '\0'; /* species name is initial string up to [ |.] */
+				string[strcspn(string, NAMEDELIMITER)] = '\0'; /* species name is initial string up to [ |.] */
 				found = -1;
 				for(i=0; i<numspecies; i++)
 					{
