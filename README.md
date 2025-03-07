@@ -49,7 +49,7 @@ catsequences FILENAME
   
   - Partition information will be written to the file `allseqs.partitions.txt`
 
-  - The sequence names are read up to the first `.`, `|` or ` ` (space) (or the end of the name)
+  - The sequence names are read up to the first `.` `|` or ` ` (space) (or the end of the name)
 
 The easiest way to create the list input file is to use a command like:
 ```
