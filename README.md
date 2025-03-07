@@ -14,7 +14,7 @@ Where:
 
 The sequence names are read up to the first `.` `|` or ` ` (space) or the end of the name.
 
-**NOTE**: You can change the delimiters that are used to split the name by editing the code - [see below for details](https://github.com/ChrisCreevey/catsequences/edit/master/README.md#i-need-a-different-delimiter-character-in-the-sequence-names-than-the-default---or---space)
+**NOTE**: You can change the delimiters that are used to split the name by editing the code - see below for details
 
 
 ----------------------------------
