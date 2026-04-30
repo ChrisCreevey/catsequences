@@ -1,0 +1,6 @@
+#NEXUS
+begin sets;
+	charset test1 = 1-13;
+	charset test2 = 14-24;
+	charset test3 = 25-35;
+end;

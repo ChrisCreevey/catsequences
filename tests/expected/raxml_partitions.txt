@@ -1,0 +1,3 @@
+DNA, test1 = 1-13
+DNA, test2 = 14-24
+DNA, test3 = 25-35

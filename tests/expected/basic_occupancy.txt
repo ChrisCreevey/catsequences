@@ -1,0 +1,8 @@
+Species	Present_genes	Missing_chars	Missing_pct
+species1	2/3	11	31.4%
+species2	2/3	11	31.4%
+species3	2/3	11	31.4%
+species4	2/3	13	37.1%
+species5	1/3	24	68.6%
+
+Matrix completeness: 60.0% (9/15 gene-species cells present)
