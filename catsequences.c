@@ -115,10 +115,11 @@ static int read_line(FILE *fp, char **buf, size_t *cap)
             break;
         }
         if (len + 1 >= *cap) {
-            *cap *= 2;
-            char *tmp = realloc(*buf, *cap);
+            size_t newcap = *cap * 2;
+            char *tmp = realloc(*buf, newcap);
             if (!tmp) die("out of memory");
             *buf = tmp;
+            *cap = newcap;
         }
         (*buf)[len++] = (char)c;
     }
@@ -126,12 +127,13 @@ static int read_line(FILE *fp, char **buf, size_t *cap)
     return (int)len;
 }
 
-/* Return basename of path with the extension stripped. */
+/* Return basename of path with the last extension stripped.
+ * e.g. "genes/rbcL.fasta" -> "rbcL", "gene.v2.fasta" -> "gene.v2" */
 static void gene_name(const char *path, char *out, size_t outsz)
 {
     const char *base = strrchr(path, '/');
     base = base ? base + 1 : path;
-    const char *dot = strrchr(base, '.');
+    const char *dot = strrchr(base, '.'); /* strip only the last extension */
     size_t len = dot ? (size_t)(dot - base) : strlen(base);
     if (len >= outsz) len = outsz - 1;
     memcpy(out, base, len);
@@ -375,13 +377,21 @@ static void second_pass(void)
         }
     }
 
+    /* Per-species write offset within the current file — avoids
+     * repeated strlen calls when appending multi-line sequences. */
+    int *offsets = malloc((size_t)numspecies * sizeof(int));
+    if (!offsets) die("out of memory");
+
     char *buf = NULL;
     size_t cap = 0;
 
     for (int j = 0; j < num_files; j++) {
+        memset(offsets, 0, (size_t)numspecies * sizeof(int));
+
         FILE *fp = fopen(filelist[j], "r");
         if (!fp) {
             fprintf(stderr, "Error: Cannot reopen %s\n", filelist[j]);
+            free(offsets);
             exit(EXIT_FAILURE);
         }
 
@@ -403,11 +413,12 @@ static void second_pass(void)
                 if (found < 0) {
                     fprintf(stderr,
                         "Error: species '%s' not in master list\n", buf);
+                    free(offsets);
                     exit(EXIT_FAILURE);
                 }
 
                 /* Handle duplicates */
-                if (sequences[j][found][0] != '\0') {
+                if (offsets[found] > 0) {
                     switch (dup_mode) {
                     case DUP_WARN:
                         printf("Duplicate %s in %s: ignoring extra copy\n",
@@ -418,18 +429,26 @@ static void second_pass(void)
                         fprintf(stderr,
                             "Error: duplicate species %s in %s\n",
                             species_names[found] + 1, filelist[j]);
+                        free(offsets);
                         exit(EXIT_FAILURE);
                     case DUP_KEEPLAST:
+                        offsets[found] = 0;
                         sequences[j][found][0] = '\0';
                         break;
                     }
                 }
 
             } else if (found >= 0 && !previous) {
-                /* Append sequence line, guarding against overflow */
-                size_t have = strlen(sequences[j][found]);
-                size_t room = (size_t)seqlens[j] - have;
-                strncat(sequences[j][found], buf, room);
+                /* Append sequence line using tracked offset */
+                int have = offsets[found];
+                int room = seqlens[j] - have;
+                if (room > 0) {
+                    int srclen = (int)strlen(buf);
+                    int copy   = srclen < room ? srclen : room;
+                    memcpy(sequences[j][found] + have, buf, (size_t)copy);
+                    offsets[found] = have + copy;
+                    sequences[j][found][offsets[found]] = '\0';
+                }
             }
         }
         fclose(fp);
@@ -437,6 +456,7 @@ static void second_pass(void)
         if (verbose)
             printf("Read %s\n", filelist[j]);
     }
+    free(offsets);
     free(buf);
 }
 
@@ -551,7 +571,7 @@ static void write_alignment(void)
 
     /* Format-specific headers */
     if (aln_format == AFMT_PHYLIP) {
-        fprintf(fp, " %d %d\n", nsp, tot);
+        fprintf(fp, "%d %d\n", nsp, tot);
     } else if (aln_format == AFMT_NEXUS) {
         fprintf(fp, "#NEXUS\nbegin data;\n");
         fprintf(fp, "\tdimensions ntax=%d nchar=%d;\n", nsp, tot);

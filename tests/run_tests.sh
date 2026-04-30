@@ -21,7 +21,7 @@ FAIL=0
 # ── helper: compare two files, report result ─────────────────────
 check() {
     local label="$1" got="$2" want="$3"
-    if diff -q "$got" "$want" > /dev/null 2>&1; then
+    if diff -q "$want" "$got" > /dev/null 2>&1; then
         echo "PASS: $label"
         PASS=$(( PASS + 1 ))
     else
